@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Dashboard</h2>
+<a href="{{ url_for('add_transaction') }}">+ Add Transaction</a>
+<ul>
+    {% for txn in transactions %}
+        <li><strong>{{ txn.type }}</strong>: ₹{{ txn.amount }} - {{ txn.category }} on {{ txn.date.strftime('%Y-%m-%d') }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

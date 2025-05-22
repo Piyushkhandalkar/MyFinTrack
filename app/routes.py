@@ -4,6 +4,8 @@ from .forms import RegistrationForm, LoginForm, TransactionForm
 from .models import User, Transaction
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
+import plotly.graph_objs as go
+from datetime import datetime
 
 # Define the blueprint
 main = Blueprint("main", __name__)
@@ -57,12 +59,90 @@ def logout():
 @main.route("/dashboard")
 @login_required
 def dashboard():
+    # Fetch all transactions
     transactions = (
         Transaction.query.filter_by(user_id=current_user.id)
         .order_by(Transaction.date.desc())
         .all()
     )
-    return render_template("dashboard.html", transactions=transactions)
+
+    # --- 1. Income vs Expense Bar Chart ---
+    income = sum(txn.amount for txn in transactions if txn.type == "income")
+    expenses = sum(txn.amount for txn in transactions if txn.type == "expense")
+
+    bar_chart = go.Figure(
+        data=[
+            go.Bar(
+                x=["Income", "Expenses"],
+                y=[income, expenses],
+                marker_color=["green", "red"],
+            )
+        ],
+        layout=go.Layout(title="Income vs Expenses"),
+    )
+
+    # --- 2. Transaction Breakdown by Category (Pie Chart) ---
+    category_data = {}
+    for txn in transactions:
+        category_data[txn.category] = category_data.get(txn.category, 0) + txn.amount
+
+    pie_chart = go.Figure(
+        data=[
+            go.Pie(
+                labels=list(category_data.keys()), values=list(category_data.values())
+            )
+        ],
+        layout=go.Layout(title="Transaction Breakdown by Category"),
+    )
+
+    # --- 3. Monthly Analysis (Line Chart) ---
+    monthly_data = {}
+    for txn in transactions:
+        month = txn.date.strftime("%Y-%m")
+        monthly_data[month] = monthly_data.get(month, 0) + txn.amount
+
+    monthly_chart = go.Figure(
+        data=[
+            go.Scatter(
+                x=list(monthly_data.keys()),
+                y=list(monthly_data.values()),
+                mode="lines+markers",
+                marker=dict(color="blue"),
+            )
+        ],
+        layout=go.Layout(
+            title="Monthly Analysis", xaxis_title="Month", yaxis_title="Amount"
+        ),
+    )
+
+    # --- 4. Yearly Analysis (Bar Chart) ---
+    yearly_data = {}
+    for txn in transactions:
+        year = txn.date.strftime("%Y")
+        yearly_data[year] = yearly_data.get(year, 0) + txn.amount
+
+    yearly_chart = go.Figure(
+        data=[
+            go.Bar(
+                x=list(yearly_data.keys()),
+                y=list(yearly_data.values()),
+                marker_color="purple",
+            )
+        ],
+        layout=go.Layout(
+            title="Yearly Analysis", xaxis_title="Year", yaxis_title="Amount"
+        ),
+    )
+
+    # Convert graphs to JSON
+    graphs = {
+        "bar_chart": bar_chart.to_html(full_html=False),
+        "pie_chart": pie_chart.to_html(full_html=False),
+        "monthly_chart": monthly_chart.to_html(full_html=False),
+        "yearly_chart": yearly_chart.to_html(full_html=False),
+    }
+
+    return render_template("dashboard.html", transactions=transactions, graphs=graphs)
 
 
 @main.route("/add", methods=["GET", "POST"])
@@ -81,4 +161,4 @@ def add_transaction():
         db.session.commit()
         flash("Transaction added successfully!", "success")
         return redirect(url_for("main.dashboard"))
-    return render_template("add_transaction.html", form=form)
+    return render_template("add_transactions.html", form=form)

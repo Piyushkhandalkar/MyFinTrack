@@ -1,6 +1,57 @@
 {% extends "base.html" %}
-{% block title%}HOME{%endblock%}
-{%block content%}
-<h2>WELCOME To Fintrack </h2>
-<p>Track your income and expenses with easse<p>
-{%endblock%}
+{% block title %}HOME{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container py-5 text-center">
+    <h1 class="display-4 fw-bold text-primary">Welcome to FinTrack</h1>
+    <p class="lead text-muted">Your personal finance tracker – manage income, monitor expenses, and take control of your money.</p>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-success btn-lg mt-3">Go to Dashboard</a>
+    {% else %}
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg mt-3">Login to Get Started</a>
+    {% endif %}
+</div>
+
+<!-- Feature Section -->
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Track Income & Expenses</h5>
+                    <p class="card-text">Log and categorize all your transactions in one place.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Visualize Your Spending</h5>
+                    <p class="card-text">Interactive graphs help you understand your financial habits.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">🔒 Secure & Private</h5>
+                    <p class="card-text">Your data is safe with login authentication and personal dashboards.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional Illustration -->
+<div class="container mb-5 text-center">
+    <img src="{{ url_for('static', filename='images/finance-illustration.svg') }}" alt="Finance" class="img-fluid" style="max-height: 400px;">
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-3 bg-light text-muted">
+    <small>&copy; 2025 FinTrack. All rights reserved.</small>
+</footer>
+{% endblock %}

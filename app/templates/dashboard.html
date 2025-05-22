@@ -1,11 +1,53 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
+
 {% block content %}
 <h2>Dashboard</h2>
-<a href="{{ url_for('add_transaction') }}">+ Add Transaction</a>
+<div class="text-end mb-3">
+    <a href="{{ url_for('main.add_transaction') }}" class="btn btn-primary">
+        + Add Transaction
+    </a>
+</div>
+
+
+<!-- Graphs Section -->
+<div>
+    <h3>Income vs Expenses</h3>
+    <div>
+        {{ graphs.bar_chart | safe }}
+    </div>
+
+    <h3>Transaction Breakdown by Category</h3>
+    <div>
+        {{ graphs.pie_chart | safe }}
+    </div>
+
+    <h3>Monthly Analysis</h3>
+    <div>
+        {{ graphs.monthly_chart | safe }}
+    </div>
+
+    <h3>Yearly Analysis</h3>
+    <div>
+        {{ graphs.yearly_chart | safe }}
+    </div>
+</div>
+
+<!-- Transactions List -->
+<h3>Your Transactions</h3>
+<div class="d-flex justify-content-between align-items-center mt-4">
+    
+    <a href="{{ url_for('main.add_transaction') }}" class="btn btn-success">
+        + Add Transaction
+    </a>
+</div>
+
 <ul>
     {% for txn in transactions %}
-        <li><strong>{{ txn.type }}</strong>: ₹{{ txn.amount }} - {{ txn.category }} on {{ txn.date.strftime('%Y-%m-%d') }}</li>
+        <li>
+            <strong>{{ txn.type }}</strong>: ₹{{ txn.amount }} - {{ txn.category }} on {{ txn.date.strftime('%Y-%m-%d') }}
+        </li>
     {% endfor %}
 </ul>
+  
 {% endblock %}

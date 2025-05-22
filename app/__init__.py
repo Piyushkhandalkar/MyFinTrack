@@ -8,6 +8,23 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 
 
+def get_summary(user_id):
+    income = (
+        Transaction.query.filter_by(user_id=user_id, type="income")
+        .with_entities(func.sum(Transaction.amount))
+        .scalar()
+        or 0
+    )
+    expense = (
+        Transaction.query.filter_by(user_id=user_id, type="expense")
+        .with_entities(func.sum(Transaction.amount))
+        .scalar()
+        or 0
+    )
+    balance = income - expense
+    return {"total_income": income, "total_expense": expense, "balance": balance}
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object("config.Config")
